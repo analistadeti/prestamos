@@ -1,0 +1,55 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Solicitar Préstamo{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>Devolución de Equipos</h2>
+
+        <form method="GET" action="{% url 'devolver_articulo' %}" class="mb-4">
+            <input type="text" name="nombre_articulo" placeholder="Buscar por nombre de artículo" class="form-control" />
+            <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+        </form>
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Artículo</th>
+                        <th>Solicitante</th>
+                        <th>Cargo</th>
+                        <th>Fecha de Solicitud</th>
+                        <th>Fecha de Devolución</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prestamo in prestamos %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'confirmar_devolucion' prestamo.id %}" class="btn btn-info">Devolver</a>
+                        </td>
+                        <td>{{ prestamo.articulo.nombre }}</td>
+                        <td>{{ prestamo.nombre_persona }}</td>
+                        <td>{{ prestamo.cargo_persona }}</td>
+                        <td>{{ prestamo.fecha_solicitud }}</td>
+                        <td>{{ prestamo.fecha_devolucion }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No hay artículos prestados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    {% endblock %}
+
+
