@@ -4,54 +4,73 @@
 
 {% block content %}
     <div class="container mt-5">
-        <h2>PORTATILES DISPONIBLES</h2>
-
-        <!-- Bloque para mostrar mensajes de éxito -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span>&times;</span>
-                    </button>
+        <h2>PORTÁTILES DISPONIBLES</h2>
+        <form method="GET" action="{% url 'disponibilidad' %}">
+            <div class="form-row">
+                <div class="col">
+                    <label for="fecha_solicitud">Fecha de Solicitud:</label>
+                    <input type="date" class="form-control" id="fecha_solicitud" name="fecha_solicitud" 
+                           required min="{{ hoy }}" value="{{ hoy }}">
                 </div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST" action="{% url 'solicitar_prestamo' %}">
-            {% csrf_token %}
-            <div class="row mb-3">
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">Solicitar</button>
+                <div class="col">
+                    <label for="fecha_devolucion">Fecha de Devolución:</label>
+                    <input type="date" class="form-control" id="fecha_devolucion" name="fecha_devolucion" 
+                           required min="{{ hoy }}">
+                </div>
+                <div class="col-auto align-self-end">
+                    <button type="submit" class="btn btn-primary">Ver Disponibilidad</button>
                 </div>
             </div>
-
-            <table class="table table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Seleccionar</th>
-                        <th>Portátil</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for articulo in articulos %}
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="articulos" value="{{ articulo.id }}">
-                        </td>
-                        <td>{{ articulo.nombre }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="2" class="text-center">No Hay Portátiles Disponibles.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </form>
+
+        <!-- Mostrar el mensaje y la tabla solo si se ha seleccionado un rango de fechas -->
+        {% if mostrar_tabla %}
+            <!-- Mensaje de rango de fechas seleccionado -->
+            <p><strong>Equipos disponibles del {{ request.GET.fecha_solicitud }} al {{ request.GET.fecha_devolucion }}:</strong></p>
+            
+            <form method="POST" action="{% url 'solicitar_prestamo' %}">
+                {% csrf_token %}
+                <input type="hidden" name="fecha_solicitud" value="{{ request.GET.fecha_solicitud }}">
+                <input type="hidden" name="fecha_devolucion" value="{{ request.GET.fecha_devolucion }}">
+                
+                <table class="table table-striped mt-3">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Portátil</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for articulo in articulos %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="articulos" value="{{ articulo.id }}">
+                            </td>
+                            <td>{{ articulo.nombre }}</td>
+                            <td>{{ articulo.observacion }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No Hay Portátiles Disponibles.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Solicitar</button>
+            </form>
+        {% endif %}
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    {% endblock %}
+
+    <script>
+        // Actualizar la página cada 60 segundos
+        setTimeout(function(){
+            location.reload();
+        }, 60000); // 60000 ms = 1 minuto
+    </script>
+{% endblock %}
+

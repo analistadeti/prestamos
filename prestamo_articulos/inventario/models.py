@@ -1,9 +1,9 @@
 from django.db import models
 
 
-class Articulo(models.Model):
+class Articulo(models.Model): 
     nombre = models.CharField(max_length=100)  # Por ejemplo, 'LT03-2018'
-    prestado = models.BooleanField(default=False)
+    observacion = models.TextField(blank=True, null=True)  # Campo de observación
 
     def __str__(self):
         return self.nombre

@@ -11,6 +11,11 @@
             <button type="submit" class="btn btn-primary mt-2">Buscar</button>
         </form>
 
+        <div class="mb-4">
+            <a href="{% url 'devolver_articulo' %}?filtro=hoy" class="btn btn-warning">Hoy</a>
+            <a href="{% url 'devolver_articulo' %}?filtro=otras" class="btn btn-secondary">Otras Fechas</a>
+        </div>
+
         <form method="POST" action="">
             {% csrf_token %}
             <table class="table table-bordered">
@@ -50,6 +55,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    {% endblock %}
+{% endblock %}
+
 
 
