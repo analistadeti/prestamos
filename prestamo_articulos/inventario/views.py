@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 from datetime import datetime
 import pytz
+from datetime import date, timedelta
+
 
 
 def solicitar_prestamo(request):
@@ -87,12 +89,6 @@ def devolver_articulo(request):
         hoy_local = timezone.localtime(hoy_utc)  # Convierte a la hora local
         hoy_date = hoy_local.date()  # Obtiene solo la fecha
 
-        # Imprimir la zona horaria actual y la fecha/hora
-        print("Zona horaria actual:", timezone.get_current_timezone())
-        print("Fecha y hora actual (UTC):", hoy_utc)  # Imprimir la fecha y hora en UTC
-        print("Fecha y hora actual (Local):", hoy_local)  # Imprimir la fecha y hora en hora local
-        print("Fecha de hoy (Local):", hoy_date)  # Imprimir la fecha actual
-
         if filtro == 'hoy':
             prestamos = prestamos.filter(fecha_devolucion=hoy_date)  # Filtrar por devoluciones de hoy
         elif filtro == 'otras':
@@ -119,28 +115,45 @@ def confirmar_devolucion(request, prestamo_id):
 
     return render(request, 'inventario/confirmar_devolucion.html', {'prestamo': prestamo})
 
-
 def disponibilidad_articulos(request):
     fecha_solicitud = request.GET.get('fecha_solicitud')
     fecha_devolucion = request.GET.get('fecha_devolucion')
     hoy = date.today()
-
-    # Mostrar la tabla solo cuando el rango de fechas ha sido seleccionado
+    hoy_str = hoy.isoformat()
+    max_fecha_solicitud = (hoy + timedelta(days=5)).isoformat()  # Fecha máxima para la solicitud (5 días desde hoy)
+    
     articulos = []
-    if fecha_solicitud and fecha_devolucion:
-        articulos_prestados = Prestamo.objects.filter(
-            devuelto=False,
-            fecha_solicitud__lt=fecha_devolucion,
-            fecha_devolucion__gt=fecha_solicitud
-        ).values_list('articulo_id', flat=True)
+    mostrar_tabla = False
 
-        # Aquí excluyes los artículos que están prestados en el rango de fechas
-        articulos = Articulo.objects.exclude(id__in=articulos_prestados)
+    # Validación de fechas si se seleccionaron
+    if fecha_solicitud:
+        fecha_solicitud_obj = date.fromisoformat(fecha_solicitud)
+        max_fecha_devolucion = (fecha_solicitud_obj + timedelta(days=7)).isoformat()  # Fecha máxima de devolución (7 días desde la solicitud)
+
+        if fecha_solicitud_obj > hoy + timedelta(days=5):
+            messages.error(request, "No se pueden realizar préstamos a más de 5 días desde la fecha actual.")
+        elif fecha_devolucion:
+            fecha_devolucion_obj = date.fromisoformat(fecha_devolucion)
+            if fecha_devolucion_obj > fecha_solicitud_obj + timedelta(days=7):
+                messages.error(request, "La fecha de devolución no puede ser más de 7 días después de la fecha de solicitud.")
+            else:
+                articulos_prestados = Prestamo.objects.filter(
+                    devuelto=False,
+                    fecha_solicitud__lt=fecha_devolucion,
+                    fecha_devolucion__gt=fecha_solicitud
+                ).values_list('articulo_id', flat=True)
+
+                articulos = Articulo.objects.exclude(id__in=articulos_prestados)
+                mostrar_tabla = True
+    else:
+        max_fecha_devolucion = max_fecha_solicitud
 
     return render(request, 'inventario/disponibilidad.html', {
         'articulos': articulos,
-        'hoy': hoy,
-        'mostrar_tabla': bool(fecha_solicitud and fecha_devolucion),  # Variable de control para la tabla
+        'hoy': hoy_str,
+        'mostrar_tabla': mostrar_tabla,
+        'max_fecha_solicitud': max_fecha_solicitud,
+        'max_fecha_devolucion': max_fecha_devolucion  # Fecha máxima para devolución dinámica
     })
 @login_required
 def admin_panel(request):
