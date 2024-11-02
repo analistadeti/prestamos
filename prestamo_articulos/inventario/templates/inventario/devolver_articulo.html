@@ -12,9 +12,10 @@
         </form>
 
         <div class="mb-4">
-            <a href="{% url 'devolver_articulo' %}?filtro=hoy" class="btn btn-warning">Hoy</a>
-            <a href="{% url 'devolver_articulo' %}?filtro=otras" class="btn btn-secondary">Otras Fechas</a>
+            <a href="{% url 'devolver_articulo' %}?filtro=hoy" class="btn {% if filtro == 'hoy' %}btn-warning{% else %}btn-outline-warning{% endif %}">Hoy</a>
+            <a href="{% url 'devolver_articulo' %}?filtro=otras" class="btn {% if filtro == 'otras' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">Otras Fechas</a>
         </div>
+        
 
         <form method="POST" action="">
             {% csrf_token %}

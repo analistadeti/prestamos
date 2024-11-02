@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.contrib import messages  # Importar mensajes
 from django.contrib.auth.decorators import login_required
 from datetime import date
+from datetime import datetime
+import pytz
 
 
 def solicitar_prestamo(request):
@@ -68,6 +70,8 @@ def guardar_prestamo(request):
     messages.error(request, 'Error al realizar el préstamo. Por favor, verifica la información.')
     return redirect('disponibilidad')
 @login_required
+
+
 def devolver_articulo(request):
     prestamos = Prestamo.objects.filter(devuelto=False)  # Obtener préstamos no devueltos
 
@@ -79,14 +83,27 @@ def devolver_articulo(request):
 
         # Filtrar por fecha de devolución
         filtro = request.GET.get('filtro', '')
+        hoy_utc = timezone.now()  # Obtiene la fecha y hora actual en UTC
+        hoy_local = timezone.localtime(hoy_utc)  # Convierte a la hora local
+        hoy_date = hoy_local.date()  # Obtiene solo la fecha
+
+        # Imprimir la zona horaria actual y la fecha/hora
+        print("Zona horaria actual:", timezone.get_current_timezone())
+        print("Fecha y hora actual (UTC):", hoy_utc)  # Imprimir la fecha y hora en UTC
+        print("Fecha y hora actual (Local):", hoy_local)  # Imprimir la fecha y hora en hora local
+        print("Fecha de hoy (Local):", hoy_date)  # Imprimir la fecha actual
+
         if filtro == 'hoy':
-            hoy = timezone.now().date()
-            prestamos = prestamos.filter(fecha_devolucion=hoy)  # Filtrar por devoluciones de hoy
+            prestamos = prestamos.filter(fecha_devolucion=hoy_date)  # Filtrar por devoluciones de hoy
         elif filtro == 'otras':
-            hoy = timezone.now().date()
-            prestamos = prestamos.exclude(fecha_devolucion=hoy)  # Excluir devoluciones de hoy
+            prestamos = prestamos.exclude(fecha_devolucion=hoy_date)  # Excluir devoluciones de hoy
+
+    # Imprimir la consulta SQL generada
+    print(prestamos.query)  # Agrega esta línea para ver la consulta SQL generada
 
     return render(request, 'inventario/devolver_articulo.html', {'prestamos': prestamos})
+
+
 
 def confirmar_devolucion(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
