@@ -9,5 +9,8 @@ urlpatterns = [
     path('guardar_prestamo/', views.guardar_prestamo, name='guardar_prestamo'),
     path('devolver_articulo/', views.devolver_articulo, name='devolver_articulo'),
     path('confirmar_devolucion/<int:prestamo_id>/', views.confirmar_devolucion, name='confirmar_devolucion'),
+    path('equipos-a-entregar-hoy/', views.equipos_a_entregar_hoy, name='equipos_a_entregar_hoy'),
+    path('marcar-como-entregado/<int:prestamo_id>/', views.marcar_como_entregado, name='marcar_como_entregado'),
+  
 
 ]

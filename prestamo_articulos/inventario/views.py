@@ -72,8 +72,6 @@ def guardar_prestamo(request):
     messages.error(request, 'Error al realizar el préstamo. Por favor, verifica la información.')
     return redirect('disponibilidad')
 @login_required
-
-
 def devolver_articulo(request):
     prestamos = Prestamo.objects.filter(devuelto=False)  # Obtener préstamos no devueltos
 
@@ -100,7 +98,7 @@ def devolver_articulo(request):
     return render(request, 'inventario/devolver_articulo.html', {'prestamos': prestamos})
 
 
-
+@login_required
 def confirmar_devolucion(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
 
@@ -137,12 +135,14 @@ def disponibilidad_articulos(request):
             if fecha_devolucion_obj > fecha_solicitud_obj + timedelta(days=7):
                 messages.error(request, "La fecha de devolución no puede ser más de 7 días después de la fecha de solicitud.")
             else:
+                # Excluir los artículos que ya tienen un préstamo en el rango seleccionado
                 articulos_prestados = Prestamo.objects.filter(
                     devuelto=False,
-                    fecha_solicitud__lt=fecha_devolucion,
-                    fecha_devolucion__gt=fecha_solicitud
+                    fecha_solicitud__lte=fecha_devolucion_obj,
+                    fecha_devolucion__gte=fecha_solicitud_obj
                 ).values_list('articulo_id', flat=True)
 
+                # Obtener los artículos que no están prestados en ese rango de fechas
                 articulos = Articulo.objects.exclude(id__in=articulos_prestados)
                 mostrar_tabla = True
     else:
@@ -155,6 +155,20 @@ def disponibilidad_articulos(request):
         'max_fecha_solicitud': max_fecha_solicitud,
         'max_fecha_devolucion': max_fecha_devolucion  # Fecha máxima para devolución dinámica
     })
+@login_required
+def equipos_a_entregar_hoy(request):
+    hoy = timezone.now().date()  # Obtén la fecha actual
+    prestamos_a_entregar = Prestamo.objects.filter(fecha_solicitud=hoy, entregado=False)
+
+    return render(request, 'inventario/equipos_a_entregar.html', {
+        'prestamos_a_entregar': prestamos_a_entregar,
+    })
+@login_required
+def marcar_como_entregado(request, prestamo_id):
+    prestamo = get_object_or_404(Prestamo, id=prestamo_id)
+    prestamo.entregado = True  # Marcamos como entregado
+    prestamo.save()
+    return redirect('equipos_a_entregar_hoy')  # Redirigir a la lista de equipos a entregar
 @login_required
 def admin_panel(request):
     return render(request, 'inventario/admin_panel.html')

@@ -1,0 +1,46 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Equipos a Entregar Hoy{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Equipos a Entregar Hoy</h2>
+
+    {% if prestamos_a_entregar %}
+        <table class="table table-striped mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Artículo</th>
+                    <th>Nombre del Solicitante</th>
+                    <th>Cargo del Solicitante</th>
+                    <th>Fecha de Solicitud</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prestamo in prestamos_a_entregar %}
+                <tr>
+                    <td>{{ prestamo.articulo.nombre }}</td>
+                    <td>{{ prestamo.nombre_persona }}</td>
+                    <td>{{ prestamo.cargo_persona }}</td>
+                    <td>{{ prestamo.fecha_solicitud }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'marcar_como_entregado' prestamo.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Marcar como Entregado</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No hay equipos para entregar hoy.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay equipos para entregar hoy.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

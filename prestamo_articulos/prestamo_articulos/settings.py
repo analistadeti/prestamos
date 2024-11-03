@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5@4e81h5o8o39cquf$xp0e0i+y$av@om%*rlm@0(nzsog5-3sj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.12']
 
 LOGIN_REDIRECT_URL = 'disponibilidad'  # Redirigir a disponibilidad después del inicio de sesión
 LOGOUT_REDIRECT_URL = 'disponibilidad'  # Redirigir a disponibilidad después de cerrar sesión
