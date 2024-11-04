@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tu Aplicación{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .logo-container {
+            text-align: center; /* Centra la imagen en la página */
+            margin-bottom: 20px; /* Espacio debajo del logo */
+            overflow: hidden; /* Asegura que nada sobresalga */
+        }
+        .logo-img {
+            width: 100%; /* Ocupa todo el ancho de la página */
+            max-height: 20vh; /* Establece una altura máxima del 10% de la ventana */
+            object-fit: contain; /* Ajusta la imagen para que se ajuste dentro del contenedor sin recortarse */
+        }
+    </style>
+    
+    
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -21,10 +35,20 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'equipos_a_entregar_hoy' %}">Prestados para hoy</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'equipos_en_bodega' %}">Equipos en Bodega</a>
+                </li>
             </ul>
         </div>
     </nav>
+    {% load static %}
 
+    <div class="logo-container">
+        <img src="{% static 'inventario/imagen/Zh Oscuro.png' %}" alt="Logo" class="img-fluid logo-img">
+    </div>
+    
+    
+    
     <div class="container mt-5">
         {% if messages %}
     <div class="alert alert-success" role="alert">

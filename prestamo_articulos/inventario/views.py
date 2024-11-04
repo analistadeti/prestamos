@@ -66,7 +66,7 @@ def guardar_prestamo(request):
                 except Articulo.DoesNotExist:
                     continue  # Si no existe el artículo, simplemente continuamos
 
-            messages.success(request, 'Préstamo(s) exitoso(s). Puedes pasar a tecnología por el equipo en la fecha seleccionada.')
+            messages.success(request, 'Préstamo(s) exitoso(s). Puedes pasar a tecnología por el equipo en la fecha solicitada.')
             return redirect('disponibilidad')
     
     messages.error(request, 'Error al realizar el préstamo. Por favor, verifica la información.')
@@ -157,19 +157,38 @@ def disponibilidad_articulos(request):
     })
 @login_required
 def equipos_a_entregar_hoy(request):
-    hoy = timezone.now().date()  # Obtén la fecha actual
+    hoy_utc = timezone.now()  # Obtiene la fecha y hora actual en UTC
+    hoy_local = timezone.localtime(hoy_utc)  # Convierte a la hora local
+    hoy= hoy_local.date()  # Obtiene solo la fecha
     prestamos_a_entregar = Prestamo.objects.filter(fecha_solicitud=hoy, entregado=False)
 
     return render(request, 'inventario/equipos_a_entregar.html', {
         'prestamos_a_entregar': prestamos_a_entregar,
     })
 @login_required
+
 def marcar_como_entregado(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
     prestamo.entregado = True  # Marcamos como entregado
     prestamo.save()
     return redirect('equipos_a_entregar_hoy')  # Redirigir a la lista de equipos a entregar
+
 @login_required
 def admin_panel(request):
     return render(request, 'inventario/admin_panel.html')
+
+@login_required
+def equipos_en_bodega(request):
+    hoy = date.today()
+    # Obtener los artículos que no están en préstamo actualmente o que han sido devueltos
+    articulos_en_bodega = Articulo.objects.exclude(
+        id__in=Prestamo.objects.filter(
+            devuelto=False,
+            fecha_devolucion__gte=hoy  # Préstamos activos hasta el día de hoy
+        ).values_list('articulo_id', flat=True)
+    )
+
+    return render(request, 'inventario/equipos_en_bodega.html', {
+        'articulos_en_bodega': articulos_en_bodega,
+    })
 

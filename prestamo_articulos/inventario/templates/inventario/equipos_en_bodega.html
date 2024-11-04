@@ -1,0 +1,30 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Equipos en Bodega{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Equipos en Bodega</h2>
+
+    {% if articulos_en_bodega %}
+        <table class="table table-striped mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Equipo</th>
+                    <th>Observación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for articulo in articulos_en_bodega %}
+                <tr>
+                    <td>{{ articulo.nombre }}</td>
+                    <td>{{ articulo.observacion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">Todos los equipos están actualmente en préstamo o asignados.</p>
+    {% endif %}
+</div>
+{% endblock %}
