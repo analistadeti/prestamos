@@ -17,10 +17,10 @@
                     <input type="hidden" name="articulos" value="{{ articulo.id }}">
                 {% endfor %}
             </div>
-        
+            
             <input type="hidden" name="fecha_solicitud" value="{{ fecha_solicitud }}">
             <input type="hidden" name="fecha_devolucion" value="{{ fecha_devolucion }}">
-        
+            
             <div class="form-group">
                 <label for="nombre_persona">Nombre:</label>
                 <input type="text" class="form-control" name="nombre_persona" required>
@@ -31,8 +31,18 @@
                 <input type="text" class="form-control" name="cargo_persona" required>
             </div>
         
+            <div class="form-group">
+                <label for="departamento">Departamento:</label>
+                <select class="form-control" name="departamento" required>
+                    {% for departamento in form.fields.departamento.queryset %}
+                        <option value="{{ departamento.id }}">{{ departamento.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
             <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
         </form>
+        
         
     </div>
 

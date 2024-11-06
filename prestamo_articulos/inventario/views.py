@@ -1,7 +1,7 @@
 # views.py
 from django.shortcuts import render, redirect,get_object_or_404
 from .forms import SolicitarPrestamoForm
-from .models import Articulo,Prestamo
+from .models import Articulo,Prestamo,Departamento
 from django.utils import timezone
 from django.contrib import messages  # Importar mensajes
 from django.contrib.auth.decorators import login_required
@@ -13,6 +13,8 @@ from datetime import date, timedelta
 
 
 def solicitar_prestamo(request):
+    form = SolicitarPrestamoForm()  # Instancia el formulario
+
     if request.method == 'POST':
         articulo_ids = request.POST.getlist('articulos')
         articulos = Articulo.objects.filter(id__in=articulo_ids)
@@ -21,6 +23,7 @@ def solicitar_prestamo(request):
 
         if articulos.exists():
             return render(request, 'inventario/solicitar_prestamo.html', {
+                'form': form,  # Pasa el formulario al contexto
                 'articulos': articulos,
                 'fecha_solicitud': fecha_solicitud,
                 'fecha_devolucion': fecha_devolucion
@@ -30,31 +33,30 @@ def solicitar_prestamo(request):
 
 def guardar_prestamo(request):
     if request.method == 'POST':
-        articulo_ids = request.POST.getlist('articulos')  # Obtener varios IDs
+        articulo_ids = request.POST.getlist('articulos')
         nombre_persona = request.POST.get('nombre_persona')
         cargo_persona = request.POST.get('cargo_persona')
+        departamento_id = request.POST.get('departamento')
         fecha_solicitud = request.POST.get('fecha_solicitud')
         fecha_devolucion = request.POST.get('fecha_devolucion')
 
-        # Convertir fechas a objetos datetime
         fecha_solicitud = timezone.datetime.strptime(fecha_solicitud, '%Y-%m-%d').date()
         fecha_devolucion = timezone.datetime.strptime(fecha_devolucion, '%Y-%m-%d').date()
 
-        if articulo_ids and nombre_persona and cargo_persona and fecha_solicitud and fecha_devolucion:
+        if articulo_ids and nombre_persona and cargo_persona and departamento_id:
+            departamento = Departamento.objects.get(id=departamento_id)
             for articulo_id in articulo_ids:
                 try:
-                    # Verificar si hay préstamos existentes que se solapen con las fechas ingresadas
                     if not Prestamo.objects.filter(articulo_id=articulo_id, devuelto=False).filter(
                             fecha_devolucion__gt=fecha_solicitud,
                             fecha_solicitud__lt=fecha_devolucion).exists():
                         
                         articulo = Articulo.objects.get(id=articulo_id)
-
-                        # Crear el préstamo
                         prestamo = Prestamo(
                             articulo=articulo,
                             nombre_persona=nombre_persona,
                             cargo_persona=cargo_persona,
+                            departamento=departamento,
                             fecha_solicitud=fecha_solicitud,
                             fecha_devolucion=fecha_devolucion,
                             devuelto=False
@@ -62,9 +64,8 @@ def guardar_prestamo(request):
                         prestamo.save()
                     else:
                         messages.warning(request, f'El artículo {articulo.nombre} no está disponible en las fechas solicitadas.')
-
                 except Articulo.DoesNotExist:
-                    continue  # Si no existe el artículo, simplemente continuamos
+                    continue
 
             messages.success(request, 'Préstamo(s) exitoso(s). Puedes pasar a tecnología por el equipo en la fecha solicitada.')
             return redirect('disponibilidad')
@@ -108,6 +109,7 @@ def confirmar_devolucion(request, prestamo_id):
         prestamo.articulo.save()
         # Marcar el préstamo como devuelto
         prestamo.devuelto = True
+        prestamo.devuelto_por = request.user  # Registrar el usuario que marca como devuelto
         prestamo.save()
         return redirect('devolver_articulo')  # Redirigir a la página de devolución
 
@@ -166,12 +168,12 @@ def equipos_a_entregar_hoy(request):
         'prestamos_a_entregar': prestamos_a_entregar,
     })
 @login_required
-
 def marcar_como_entregado(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
-    prestamo.entregado = True  # Marcamos como entregado
+    prestamo.entregado = True
+    prestamo.entregado_por = request.user  # Registrar el usuario que marca como entregado
     prestamo.save()
-    return redirect('equipos_a_entregar_hoy')  # Redirigir a la lista de equipos a entregar
+    return redirect('equipos_a_entregar_hoy')
 
 @login_required
 def admin_panel(request):

@@ -13,6 +13,7 @@
                     <th>Artículo</th>
                     <th>Nombre del Solicitante</th>
                     <th>Cargo del Solicitante</th>
+                    <th>Departamento</th>
                     <th>Fecha de Solicitud</th>
                     <th>Acciones</th>
                 </tr>
@@ -23,6 +24,7 @@
                     <td>{{ prestamo.articulo.nombre }}</td>
                     <td>{{ prestamo.nombre_persona }}</td>
                     <td>{{ prestamo.cargo_persona }}</td>
+                    <td>{{ prestamo.departamento }}</td>
                     <td>{{ prestamo.fecha_solicitud }}</td>
                     <td>
                         <form method="POST" action="{% url 'marcar_como_entregado' prestamo.id %}">

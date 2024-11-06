@@ -1,10 +1,11 @@
-# inventario/forms.py
+# forms.py
 from django import forms
-from .models import Articulo,Prestamo
+from .models import Articulo, Prestamo, Departamento
 
 class SolicitarPrestamoForm(forms.Form):
     nombre_persona = forms.CharField(label='Nombre del Solicitante', max_length=100)
     cargo_persona = forms.CharField(label='Cargo del Solicitante', max_length=100)
+    departamento = forms.ModelChoiceField(queryset=Departamento.objects.all(), label='Departamento', required=True)
     fecha_solicitud = forms.DateField(label='Fecha de Solicitud')
     fecha_devolucion = forms.DateField(label='Fecha de Devolución')
     articulo = forms.ModelChoiceField(queryset=Articulo.objects.all(), label='Artículo Disponible')
@@ -15,7 +16,6 @@ class SolicitarPrestamoForm(forms.Form):
         fecha_devolucion = cleaned_data.get('fecha_devolucion')
         articulo = cleaned_data.get('articulo')
 
-        # Validación de disponibilidad del artículo en las fechas
         if Prestamo.objects.filter(articulo=articulo, devuelto=False).filter(
             fecha_solicitud__lt=fecha_devolucion,
             fecha_devolucion__gt=fecha_solicitud
@@ -23,3 +23,4 @@ class SolicitarPrestamoForm(forms.Form):
             raise forms.ValidationError("El artículo no está disponible en las fechas seleccionadas.")
 
         return cleaned_data
+
