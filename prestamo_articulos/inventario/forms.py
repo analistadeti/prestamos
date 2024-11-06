@@ -1,11 +1,12 @@
 # forms.py
 from django import forms
-from .models import Articulo, Prestamo, Departamento
+from .models import Prestamo, Departamento, Articulo, Motivo
 
 class SolicitarPrestamoForm(forms.Form):
     nombre_persona = forms.CharField(label='Nombre del Solicitante', max_length=100)
     cargo_persona = forms.CharField(label='Cargo del Solicitante', max_length=100)
     departamento = forms.ModelChoiceField(queryset=Departamento.objects.all(), label='Departamento', required=True)
+    motivo = forms.ModelChoiceField(queryset=Motivo.objects.all(), label='Motivo del Préstamo', required=True)
     fecha_solicitud = forms.DateField(label='Fecha de Solicitud')
     fecha_devolucion = forms.DateField(label='Fecha de Devolución')
     articulo = forms.ModelChoiceField(queryset=Articulo.objects.all(), label='Artículo Disponible')
@@ -23,4 +24,5 @@ class SolicitarPrestamoForm(forms.Form):
             raise forms.ValidationError("El artículo no está disponible en las fechas seleccionadas.")
 
         return cleaned_data
+
 

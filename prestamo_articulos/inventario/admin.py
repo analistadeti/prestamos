@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Articulo,Prestamo,Departamento
+from .models import Articulo,Prestamo,Departamento,Motivo
 
 @admin.register(Prestamo)
 class PrestamoAdmin(admin.ModelAdmin):
@@ -8,3 +8,4 @@ class PrestamoAdmin(admin.ModelAdmin):
 
 admin.site.register(Articulo)
 admin.site.register(Departamento)
+admin.site.register(Motivo)

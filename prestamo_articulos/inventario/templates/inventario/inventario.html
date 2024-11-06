@@ -1,0 +1,28 @@
+<!-- templates/inventario/inventario.html -->
+{% extends 'inventario/base.html' %}
+
+{% block title %}Inventario de Artículos{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Inventario de Artículos</h2>
+    <table class="table table-striped mt-3">
+        <thead class="thead-dark">
+            <tr>
+                <th>Artículo</th>
+                <th>Observación</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for articulo in articulos %}
+                <tr>
+                    <td>{{ articulo.nombre }}</td>
+                    <td>{{ articulo.observacion }}</td>
+                    <td>{{ articulo.estado }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

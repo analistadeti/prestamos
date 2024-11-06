@@ -20,13 +20,15 @@ def solicitar_prestamo(request):
         articulos = Articulo.objects.filter(id__in=articulo_ids)
         fecha_solicitud = request.POST.get('fecha_solicitud')
         fecha_devolucion = request.POST.get('fecha_devolucion')
+        motivo_id = request.POST.get('motivo')  # Obtener el motivo del formulario
 
         if articulos.exists():
             return render(request, 'inventario/solicitar_prestamo.html', {
-                'form': form,  # Pasa el formulario al contexto
+                'form': form,
                 'articulos': articulos,
                 'fecha_solicitud': fecha_solicitud,
-                'fecha_devolucion': fecha_devolucion
+                'fecha_devolucion': fecha_devolucion,
+                'motivo_id': motivo_id  # Pasar el motivo al template
             })
 
     return redirect('disponibilidad')
@@ -114,6 +116,11 @@ def confirmar_devolucion(request, prestamo_id):
         return redirect('devolver_articulo')  # Redirigir a la página de devolución
 
     return render(request, 'inventario/confirmar_devolucion.html', {'prestamo': prestamo})
+
+@login_required
+def inventario(request):
+    articulos = Articulo.objects.all()
+    return render(request, 'inventario/inventario.html', {'articulos': articulos})
 
 def disponibilidad_articulos(request):
     fecha_solicitud = request.GET.get('fecha_solicitud')

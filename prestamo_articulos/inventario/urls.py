@@ -12,6 +12,7 @@ urlpatterns = [
     path('equipos-a-entregar-hoy/', views.equipos_a_entregar_hoy, name='equipos_a_entregar_hoy'),
     path('marcar-como-entregado/<int:prestamo_id>/', views.marcar_como_entregado, name='marcar_como_entregado'),
     path('equipos_en_bodega/', views.equipos_en_bodega, name='equipos_en_bodega'),
+    path('inventario/', views.inventario, name='inventario'),
   
 
 ]
