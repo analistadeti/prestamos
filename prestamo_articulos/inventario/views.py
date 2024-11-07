@@ -9,6 +9,12 @@ from datetime import date
 from datetime import datetime
 import pytz
 from datetime import date, timedelta
+from django.contrib.auth import logout
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('disponibilidad')  # O la página a la que quieras redirigir
 
 
 

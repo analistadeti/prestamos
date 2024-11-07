@@ -41,7 +41,15 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'equipos_en_bodega' %}">Equipos Disponibles</a>
                 </li>
-                
+                {% if request.user.is_authenticated and request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
+                </li>
+                {% endif %}
+
                 
             </ul>
         </div>
